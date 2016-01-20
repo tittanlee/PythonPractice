@@ -1,0 +1,76 @@
+ABOUT
+=====
+
+facebookgreeter - http://task3.cc/projects/facebookgreeter
+
+facebookgreeter is a tiny Python utility that I used to greet all my Facebook Friends before leaving the social network.
+It is able to detect the Facebook language set by your friends and prepare a suitable message for each language.
+It is also able to show you every friend skipped because of errors and tries to recover the skipped friends at the
+second run of the program.
+Therefore, it also has a tiny database (a wrapper around pickle) to store information about your friends before writing
+on their walls.
+
+FacebookGreeter depends on the official Facebook Python SDK, that can be
+obtained on https://github.com/facebook/python-sdk
+
+HOW TO USE IT
+=============
+
+0) Install the dependencies (Facebook Python SDK)
+1) Register a new Facebook application, filling the forms.
+2) Create a tiny webpage hosted on some domain. For testing, a index.php page with the code <?echo $_GET['code'];?>
+   is sufficient.
+3) Complete settings.py with the FB App information you should receive in Step 1 and with the domain/subdomain chosen
+   in step 2. Please just use http://yourdomain.ext without including the index.php part or whatever
+4) Locate the class Greeter in main.py (at about line 101). This class represents a Greet (a farewell message, a
+   leaving message, ...). For each of the locale you want to support (in my case people using FB in Italian [it_IT] and
+   English [en_US], but I used English as a fallback case for every other locale), define a method returning a farewell
+   message string.
+   E.G.
+   def en_US(self, friend):
+        return """Dear """ + friend.first_name + """ """ + friend.last_name + """, because of the current and future
+        ways FB will handle our privacy, I decided to unsubscribe. I hope to stay in touch with you:
+        e-mail/Google Talk: your-google-id@gmail.com
+        mobile: 12345678910
+        Skype: your-skype-name
+        Twitter: @your-twitter-name
+        [add as many as you want]
+        Best Regards (Message sent automatically)"""
+
+   Be sure to "register" the greet in the greet() method of the class:
+   def greet(self, friend):
+        if friend.locale == u'it_IT':
+            return self.it_IT(friend)
+        else:
+            return self.en_US(friend)
+5) Run the program. Authorize the FB App you created and gather the secret code from the script/page you created at
+   step 2). Input the secret code to the program. Now relax, you are announcing your farewell to Facebook.
+
+FAQ
+===
+
+Q: Why have you developed this tool?
+A: I was too lazy to manually write to all my Facebook "friends" to let them have the opportunity to contact me after my
+   Facebook departure. Moreover, the Internet lacks a proper example on how to handle Facebook OAuth using Python.
+   My program does and may be used for other purposes (see access.py)
+
+Q: Can you help me to properly setup the program?
+A: No. I left Facebook and I will never join it again. I left some instructions for how to use facebookgreeter.
+
+Q: I don't know know how to create a Facebook application. Can you help me?
+A: No. I can not access Facebook Apps anymore. If you are a developer, you sure know how to handle this.
+
+Q: I've just found a bug!
+A: There are many. The program fails to send a Greet to Friends using non latin-1 characters but it will notice you
+    of the failure, so you can manually greet them. Anyway, feel free to correct the bug, I won't work on this program
+    anymore
+
+Q: The program looses Facebook authentication after some hours.
+A: I know. Usually, a single Facebook OAuth lasts enough for announcing your Facebook departure. I don't want to manage
+   re-authentication, I don't need it.
+
+Q: The way you manage Greets is not elegant and hardcoded.
+A: Yes, I know.
+
+Q: But I..
+A: No. I released the program because other people may make a good use of it, but I don't want to hear about FB anymore.
