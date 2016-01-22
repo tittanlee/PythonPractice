@@ -1,0 +1,1732 @@
+cscope 15 W:\fboauth"               0000008172
+	@BaseHTTPHandler.py
+
+1 
+şass
+ 
+	$HTTPS”v”HªdËr
+(
+Ba£HTTPReque¡HªdËr
+):
+
+4 
+HTTP
+ 
+S”v”
+ 
+ÿÎbacks
+ 
+to
+ 
+hªdË
+ 
+Faûbook
+ 
+OAuth
+ 
+»dœeùs
+
+
+6 
+def
+ 
+	$__š™__
+(
+£lf
+, 
+»que¡
+, 
+add»ss
+, 
+£rv”
+):
+
+7 
+	`su³r
+().
+	$__š™__
+(
+»que¡
+, 
+add»ss
+, 
+£rv”
+)
+
+9 
+def
+ 
+	$do_GET
+(
+£lf
+):
+
+10 
+£lf
+.
+	$£nd_»¥Ú£
+(200)
+
+11 
+£lf
+.
+	`£nd_h—d”
+('Content-type', 'text/html')
+
+12 
+£lf
+.
+	`’d_h—d”s
+()
+
+	@StartHTTPServer.py
+
+1 
+şass
+ 
+	gTok’HªdËr
+:
+
+3 
+CÏss
+ 
+u£d
+ 
+to
+ 
+hªdË
+ 
+Faûbook
+ 
+oAuth
+
+
+5 
+def
+ 
+	$__š™__
+(
+£lf
+, 
+a_id
+, 
+a_£ü‘
+):
+
+6 
+£lf
+.
+_id
+ = 
+a_id
+
+
+7 
+£lf
+.
+_£ü‘
+ = 
+a_£ü‘
+
+
+9 
+def
+ 
+	$g‘_acûss_tok’
+(
+£lf
+):
+
+10 
+h‰pS”v”
+ = 
+	`HTTPS”v”
+(('loÿlho¡', 8080), 
+HTTPS”v”HªdËr
+)
+
+12 #OÆy 
+hªdË
+ 
+Úe
+ 
+»que¡
+, 
+sšû
+ 
+we
+ 
+should
+ 
+Úly
+ 
+ev”
+ 
+g‘
+ oÃ„eque¡ 
+äom
+ 
+Faûbook
+.
+
+14 
+h‰pS”v”
+.
+	`hªdË_»que¡
+()
+
+	@accessurl.py
+
+1 
+	gACCESS_URI
+ = ('https://www.facebook.com/dialog/'
+
+2 + 'ßuth?ş›Á_id=' +
+£lf
+.
+_id
+ + '&redirect_uri='
+
+3 + 
+REDIRECT_URL
+ + "&scope=xxxxx")
+
+5 
+İ’_Ãw
+(
+ACCESS_URI
+)
+
+	@authhttphandler.py
+
+1 
+şass
+ 
+	$HTTPS”v”HªdËr
+(
+Ba£HTTPReque¡HªdËr
+):
+
+4 
+HTTP
+ 
+S”v”
+ 
+ÿÎbacks
+ 
+to
+ 
+hªdË
+ 
+Faûbook
+ 
+OAuth
+ 
+»dœeùs
+
+
+6 
+def
+ 
+	$__š™__
+(
+£lf
+, 
+»que¡
+, 
+add»ss
+, 
+£rv”
+, 
+a_id
+, 
+a_£ü‘
+):
+
+7 
+£lf
+.
+­p_id
+ = 
+a_id
+
+
+8 
+£lf
+.
+­p_£ü‘
+ = 
+a_£ü‘
+
+
+9 
+	`su³r
+().
+	$__š™__
+(
+»que¡
+, 
+add»ss
+, 
+£rv”
+)
+
+11 
+def
+ 
+	$do_GET
+(
+£lf
+):
+
+12 
+GRAPH_API_AUTH_URI
+ = ('https://graph.facebook.com/v2.2/oauth/'
+
+13 + 'acûss_tok’?ş›Á_id=' + 
+£lf
+.
+­p_id
+ + '&redirect_uri='
+
+14 + 
+REDIRECT_URL
+ + '&ş›Á_£ü‘=' + 
+£lf
+.
+­p_£ü‘
+ + '&code=')
+
+16 
+£lf
+.
+	$£nd_»¥Ú£
+(200)
+
+17 
+£lf
+.
+	`£nd_h—d”
+('Content-type', 'text/html')
+
+18 
+£lf
+.
+	`’d_h—d”s
+()
+
+	@fbauth.py
+
+2 
+	gEx
+:
+
+4 
+impÜt
+ 
+fbauth
+
+
+6 
+fbAuth
+ = 
+fbauth
+.
+Tok’HªdËr
+(
+os
+.
+’vœÚ
+['FB_APP_ID'],
+
+7 
+os
+.
+’vœÚ
+['FB_APP_SECRET'])
+
+9 
+	gacûss_tok’
+ = 
+fbAuth
+.
+g‘_acûss_tok’
+()
+
+12 
+äom
+ 
+h‰p
+.
+£rv”
+ 
+impÜt
+ 
+Ba£HTTPReque¡HªdËr
+, 
+HTTPS”v”
+
+
+13 
+äom
+ 
+	gu¾lib
+.
+»que¡
+ 
+impÜt
+ 
+	gu¾İ’
+, 
+HTTPE¼Ü
+
+
+14 
+äom
+ 
+webbrow£r
+ 
+impÜt
+ 
+İ’_Ãw
+
+
+16 
+	gREDIRECT_URL
+ = 'http://localhost:8080/'
+
+17 
+PORT
+ = 8080
+
+19 
+def
+ 
+	$g‘_acûss_tok’_äom_u¾
+(
+u¾
+):
+
+21 
+P¬£
+ 
+the
+ 
+acûss
+ 
+tok’
+ 
+äom
+ 
+Faûbook
+'s„esponse
+
+22 
+Args
+:
+
+23 
+uri
+: 
+the
+ 
+çûbook
+ 
+g¿ph
+ 
+­i
+ 
+ßuth
+ 
+URI
+ 
+cÚššg
+ 
+v®id
+ 
+ş›Á_id
+,
+
+24 
+»dœeù_uri
+, 
+ş›Á_£ü‘
+, 
+ªd
+ 
+auth_code
+ 
+¬guem’ts
+
+
+25 
+R‘uºs
+:
+
+26 
+a
+ 
+¡ršg
+ 
+cÚššg
+ 
+the
+ 
+acûss
+ 
+key
+
+
+28 
+tok’
+ = 
+	`¡r
+(
+	`u¾İ’
+(
+u¾
+).
+	`»ad
+(), 'utf-8')
+
+29  
+tok’
+.
+	`¥l™
+('=')[1].split('&')[0]
+
+31 
+şass
+ 
+	$HTTPS”v”HªdËr
+(
+Ba£HTTPReque¡HªdËr
+):
+
+34 
+HTTP
+ 
+S”v”
+ 
+ÿÎbacks
+ 
+to
+ 
+hªdË
+ 
+Faûbook
+ 
+OAuth
+ 
+»dœeùs
+
+
+36 
+def
+ 
+	$__š™__
+(
+£lf
+, 
+»que¡
+, 
+add»ss
+, 
+£rv”
+, 
+a_id
+, 
+a_£ü‘
+):
+
+37 
+£lf
+.
+­p_id
+ = 
+a_id
+
+
+38 
+£lf
+.
+­p_£ü‘
+ = 
+a_£ü‘
+
+
+39 
+	`su³r
+().
+	$__š™__
+(
+»que¡
+, 
+add»ss
+, 
+£rv”
+)
+
+41 
+def
+ 
+	$do_GET
+(
+£lf
+):
+
+42 
+GRAPH_API_AUTH_URI
+ = ('https://graph.facebook.com/v2.2/oauth/'
+
+43 + 'acûss_tok’?ş›Á_id=' + 
+£lf
+.
+­p_id
+ + '&redirect_uri='
+
+44 + 
+REDIRECT_URL
+ + '&ş›Á_£ü‘=' + 
+£lf
+.
+­p_£ü‘
+ + '&code=')
+
+46 
+£lf
+.
+	$£nd_»¥Ú£
+(200)
+
+47 
+£lf
+.
+	`£nd_h—d”
+('Content-type', 'text/html')
+
+48 
+£lf
+.
+	$’d_h—d”s
+()
+
+49 'code' 
+š
+ 
+£lf
+.
+·th
+:
+
+50 
+£lf
+.
+auth_code
+ = s–f.
+·th
+.
+	`¥l™
+('=')[1]
+
+51 
+£lf
+.
+wfe
+.
+	`wr™e
+(
+	`by‹s
+('<html><h1>You may‚ow closehis window.'
+
+53 
+£lf
+.
+£rv”
+.
+acûss_tok’
+ = 
+	`g‘_acûss_tok’_äom_u¾
+(
+
+54 
+GRAPH_API_AUTH_URI
+ + 
+£lf
+.
+auth_code
+)
+
+56 #Di§bË 
+loggšg
+ 
+äom
+ 
+the
+ 
+HTTP
+ 
+S”v”
+
+
+57 
+def
+ 
+	$log_mes§ge
+(
+£lf
+, 
+fÜm©
+, *
+¬gs
+):
+
+61 
+şass
+ 
+Tok’HªdËr
+:
+
+63 
+FunùiÚs
+ 
+u£d
+ 
+to
+ 
+hªdË
+ 
+Faûbook
+ 
+oAuth
+
+
+65 
+def
+ 
+	$__š™__
+(
+£lf
+, 
+a_id
+, 
+a_£ü‘
+):
+
+66 
+£lf
+.
+_id
+ = 
+a_id
+
+
+67 
+£lf
+.
+_£ü‘
+ = 
+a_£ü‘
+
+
+69 
+def
+ 
+	$g‘_acûss_tok’
+(
+£lf
+):
+
+71 
+F‘ches
+ 
+the
+ 
+acûss
+ 
+key
+ 
+usšg
+ 
+ª
+ 
+HTTP
+ 
+£rv”
+ 
+to
+ 
+hªdË
+ 
+oAuth
+
+
+72 
+»que¡s
+
+
+73 
+Args
+:
+
+74 
+­pId
+: 
+The
+ 
+Faûbook
+ 
+assigÃd
+ 
+Aµ
+ 
+ID
+
+
+75 
+­pSeü‘
+: 
+The
+ 
+Faûbook
+ 
+assigÃd
+ 
+Aµ
+ 
+Seü‘
+
+
+78 
+ACCESS_URI
+ = ('https://www.facebook.com/dialog/'
+
+79 + 'ßuth?ş›Á_id=' +
+£lf
+.
+_id
+ + '&redirect_uri='
+
+80 + 
+REDIRECT_URL
+ + "&scope=ads_management")
+
+82 
+	$İ’_Ãw
+(
+ACCESS_URI
+)
+
+83 
+h‰pS”v”
+ = 
+	`HTTPS”v”
+(
+
+84 ('loÿlho¡', 
+PORT
+),
+
+85 
+Ïmbda
+ 
+»que¡
+, 
+add»ss
+, 
+£rv”
+: 
+	$HTTPS”v”HªdËr
+(
+
+86 
+»que¡
+, 
+add»ss
+, 
+£rv”
+, 
+£lf
+.
+_id
+, s–f.
+_£ü‘
+))
+
+87 
+h‰pS”v”
+.
+	$hªdË_»que¡
+()
+
+88  
+h‰pS”v”
+.
+acûss_tok’
+
+
+	@finalmain.py
+
+1 
+şass
+ 
+	gTok’HªdËr
+:
+
+3 
+CÏss
+ 
+u£d
+ 
+to
+ 
+hªdË
+ 
+Faûbook
+ 
+oAuth
+
+
+5 
+def
+ 
+	$__š™__
+(
+£lf
+, 
+a_id
+, 
+a_£ü‘
+):
+
+6 
+£lf
+.
+_id
+ = 
+a_id
+
+
+7 
+£lf
+.
+_£ü‘
+ = 
+a_£ü‘
+
+
+9 
+def
+ 
+	$g‘_acûss_tok’
+(
+£lf
+):
+
+11 
+F‘ches
+ 
+the
+ 
+acûss
+ 
+key
+ 
+usšg
+ 
+ª
+ 
+HTTP
+ 
+£rv”
+ 
+to
+ 
+hªdË
+ 
+oAuth
+
+
+12 
+»que¡s
+
+
+13 
+Args
+:
+
+14 
+­pId
+: 
+The
+ 
+Faûbook
+ 
+assigÃd
+ 
+Aµ
+ 
+ID
+
+
+15 
+­pSeü‘
+: 
+The
+ 
+Faûbook
+ 
+assigÃd
+ 
+Aµ
+ 
+Seü‘
+
+
+18 
+ACCESS_URI
+ = ('https://www.facebook.com/dialog/'
+
+19 + 'ßuth?ş›Á_id=' +
+£lf
+.
+_id
+ + '&redirect_uri='
+
+20 + 
+REDIRECT_URL
+ + "&scope=ads_management")
+
+22 
+	$İ’_Ãw
+(
+ACCESS_URI
+)
+
+23 
+h‰pS”v”
+ = 
+	`HTTPS”v”
+(
+
+24 ('loÿlho¡', 
+PORT
+),
+
+25 
+Ïmbda
+ 
+»que¡
+, 
+add»ss
+, 
+£rv”
+: 
+	$HTTPS”v”HªdËr
+(
+
+26 
+»que¡
+, 
+add»ss
+, 
+£rv”
+, 
+£lf
+.
+_id
+, s–f.
+_£ü‘
+))
+
+27 #Thi 
+funùiÚ
+ 
+wl
+ 
+block
+ 
+uÁ
+ 
+™
+ 
+»ûives
+ 
+a
+ 
+»que¡
+
+
+28 
+h‰pS”v”
+.
+	$hªdË_»que¡
+()
+
+29 #R‘uº 
+the
+ 
+acûss
+ 
+tok’
+
+
+30  
+h‰pS”v”
+.
+acûss_tok’
+
+
+	@gettoken.py
+
+1 
+şass
+ 
+	$HTTPS”v”HªdËr
+(
+Ba£HTTPReque¡HªdËr
+):
+
+4 
+HTTP
+ 
+S”v”
+ 
+ÿÎbacks
+ 
+to
+ 
+hªdË
+ 
+Faûbook
+ 
+OAuth
+ 
+»dœeùs
+
+
+6 
+def
+ 
+	$__š™__
+(
+£lf
+, 
+»que¡
+, 
+add»ss
+, 
+£rv”
+, 
+a_id
+, 
+a_£ü‘
+):
+
+7 
+£lf
+.
+­p_id
+ = 
+a_id
+
+
+8 
+£lf
+.
+­p_£ü‘
+ = 
+a_£ü‘
+
+
+9 
+	`su³r
+().
+	$__š™__
+(
+»que¡
+, 
+add»ss
+, 
+£rv”
+)
+
+11 
+def
+ 
+	$do_GET
+(
+£lf
+):
+
+12 
+GRAPH_API_AUTH_URI
+ = ('https://graph.facebook.com/v2.2/oauth/'
+
+13 + 'acûss_tok’?ş›Á_id=' + 
+£lf
+.
+­p_id
+ + '&redirect_uri='
+
+14 + 
+REDIRECT_URL
+ + '&ş›Á_£ü‘=' + 
+£lf
+.
+­p_£ü‘
+ + '&code=')
+
+16 
+£lf
+.
+	$£nd_»¥Ú£
+(200)
+
+17 
+£lf
+.
+	`£nd_h—d”
+('Content-type', 'text/html')
+
+18 
+£lf
+.
+	$’d_h—d”s
+()
+
+19 'code' 
+š
+ 
+£lf
+.
+·th
+:
+
+20 
+£lf
+.
+auth_code
+ = s–f.
+·th
+.
+	`¥l™
+('=')[1]
+
+21 #Di¥Ïy 
+to
+ 
+the
+ 
+u£r
+ 
+th©
+ 
+they
+ 
+no
+ 
+lÚg”
+ 
+Ãed
+h
+brow£r
+ 
+wšdow
+
+
+22 
+£lf
+.
+wfe
+.
+	`wr™e
+(
+	`by‹s
+('<html><h1>You may‚ow closehis window.'
+
+24 
+£lf
+.
+£rv”
+.
+acûss_tok’
+ = 
+	`g‘_acûss_tok’_äom_u¾
+(
+
+25 
+GRAPH_API_AUTH_URI
+ + 
+£lf
+.
+auth_code
+)
+
+	@httphandlerinit.py
+
+1 
+def
+ 
+	$__š™__
+(
+£lf
+, 
+»que¡
+, 
+add»ss
+, 
+£rv”
+, 
+a_id
+, 
+a_£ü‘
+):
+
+2 
+£lf
+.
+­p_id
+ = 
+a_id
+
+
+3 
+£lf
+.
+­p_£ü‘
+ = 
+a_£ü‘
+
+
+4 
+	`su³r
+().
+	`__š™__
+(
+»que¡
+, 
+add»ss
+, 
+£rv”
+)
+
+	@httplambda.py
+
+1 
+Ïmbda
+ 
+	g»que¡
+, 
+	gadd»ss
+, 
+	g£rv”
+: 
+HTTPS”v”HªdËr
+(
+»que¡
+, 
+add»ss
+, 
+£rv”
+, 
+£lf
+.
+_id
+, s–f.
+_£ü‘
+)
+
+	@httpserversetup.py
+
+1 
+şass
+ 
+	$HTTPS”v”HªdËr
+(
+Ba£HTTPReque¡HªdËr
+):
+
+4 
+HTTP
+ 
+S”v”
+ 
+ÿÎbacks
+ 
+to
+ 
+hªdË
+ 
+Faûbook
+ 
+OAuth
+ 
+»dœeùs
+
+
+6 
+def
+ 
+	$__š™__
+(
+£lf
+, 
+»que¡
+, 
+add»ss
+, 
+£rv”
+, 
+a_id
+, 
+a_£ü‘
+):
+
+7 
+£lf
+.
+­p_id
+ = 
+a_id
+
+
+8 
+£lf
+.
+­p_£ü‘
+ = 
+a_£ü‘
+
+
+9 
+	`su³r
+().
+	$__š™__
+(
+»que¡
+, 
+add»ss
+, 
+£rv”
+)
+
+11 
+def
+ 
+	$do_GET
+(
+£lf
+):
+
+12 
+£lf
+.
+	$£nd_»¥Ú£
+(200)
+
+13 
+£lf
+.
+	`£nd_h—d”
+('Content-type', 'text/html')
+
+14 
+£lf
+.
+	$’d_h—d”s
+()
+
+16 
+şass
+ 
+Tok’HªdËr
+:
+
+18 
+CÏss
+ 
+u£d
+ 
+to
+ 
+hªdË
+ 
+Faûbook
+ 
+oAuth
+
+
+20 
+def
+ 
+	$__š™__
+(
+£lf
+, 
+a_id
+, 
+a_£ü‘
+):
+
+21 
+£lf
+.
+_id
+ = 
+a_id
+
+
+22 
+£lf
+.
+_£ü‘
+ = 
+a_£ü‘
+
+
+24 
+def
+ 
+	$g‘_acûss_tok’
+(
+£lf
+):
+
+25 
+h‰pS”v”
+ = 
+	`HTTPS”v”
+(('loÿlho¡', 
+PORT
+),
+
+26 
+Ïmbda
+ 
+»que¡
+, 
+add»ss
+, 
+£rv”
+: 
+	$HTTPS”v”HªdËr
+(
+»que¡
+, 
+add»ss
+, 
+£rv”
+, 
+£lf
+.
+_id
+, s–f.
+_£ü‘
+))
+
+27 
+h‰pS”v”
+.
+	`hªdË_»que¡
+()
+
+	@imports.py
+
+1 
+äom
+ 
+	gh‰p
+.
+£rv”
+ 
+impÜt
+ 
+	gBa£HTTPReque¡HªdËr
+, 
+HTTPS”v”
+
+
+2 
+äom
+ 
+	gu¾lib
+.
+»que¡
+ 
+impÜt
+ 
+	gu¾İ’
+, 
+HTTPE¼Ü
+
+
+3 
+äom
+ 
+webbrow£r
+ 
+impÜt
+ open_new
+
+	@parsetoken.py
+
+1 
+def
+ 
+	$g‘_acûss_tok’_äom_u¾
+(
+u¾
+):
+
+3 
+P¬£
+ 
+the
+ 
+acûss
+ 
+tok’
+ 
+äom
+ 
+Faûbook
+'s„esponse
+
+4 
+Args
+:
+
+5 
+uri
+: 
+the
+ 
+çûbook
+ 
+g¿ph
+ 
+­i
+ 
+ßuth
+ 
+URI
+ 
+cÚššg
+ 
+v®id
+ 
+ş›Á_id
+,
+
+6 
+»dœeù_uri
+, 
+ş›Á_£ü‘
+, 
+ªd
+ 
+auth_code
+ 
+¬guem’ts
+
+
+7 
+R‘uºs
+:
+
+8 
+a
+ 
+¡ršg
+ 
+cÚššg
+ 
+the
+ 
+acûss
+ 
+key
+
+
+10 
+tok’
+ = 
+	`¡r
+(
+	`u¾İ’
+(
+u¾
+).
+	`»ad
+(), 'utf-8')
+
+11  
+tok’
+.
+	`¥l™
+('=')[1].split('&')[0]
+
+	@redir.py
+
+1 
+äom
+ 
+	gh‰p
+.
+£rv”
+ 
+impÜt
+ 
+	gBa£HTTPReque¡HªdËr
+, 
+HTTPS”v”
+
+
+2 
+äom
+ 
+	gu¾lib
+.
+»que¡
+ 
+impÜt
+ 
+	gu¾İ’
+, 
+HTTPE¼Ü
+
+
+3 
+äom
+ 
+webbrow£r
+ 
+impÜt
+ 
+İ’_Ãw
+
+
+5 
+	gREDIRECT_URL
+ = 'http://localhost:8080/'
+
+	@
+1
+.
+0
+13
+191
+BaseHTTPHandler.py
+StartHTTPServer.py
+accessurl.py
+authhttphandler.py
+fbauth.py
+finalmain.py
+gettoken.py
+httphandlerinit.py
+httplambda.py
+httpserversetup.py
+imports.py
+parsetoken.py
+redir.py

@@ -1,0 +1,56 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	2	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+ACCESS_URI	accessurl.py	/^        ACCESS_URI = ('https:\/\/www.facebook.com\/dialog\/' $/;"	v
+BaseHTTPRequestHandler	fbauth.py	/^from http.server import BaseHTTPRequestHandler, HTTPServer$/;"	i
+BaseHTTPRequestHandler	imports.py	/^from http.server import BaseHTTPRequestHandler, HTTPServer$/;"	i
+BaseHTTPRequestHandler	redir.py	/^from http.server import BaseHTTPRequestHandler, HTTPServer$/;"	i
+do_GET	authhttphandler.py	/^    def do_GET(self):$/;"	m	class:HTTPServerHandler	access:public
+do_GET	BaseHTTPHandler.py	/^    def do_GET(self):$/;"	m	class:HTTPServerHandler	access:public
+do_GET	fbauth.py	/^    def do_GET(self):$/;"	m	class:HTTPServerHandler	access:public
+do_GET	gettoken.py	/^    def do_GET(self):$/;"	m	class:HTTPServerHandler	access:public
+do_GET	httpserversetup.py	/^    def do_GET(self):$/;"	m	class:HTTPServerHandler	access:public
+get_access_token	fbauth.py	/^    def get_access_token(self):$/;"	m	class:TokenHandler	access:public
+get_access_token	finalmain.py	/^    def get_access_token(self):$/;"	m	class:TokenHandler	access:public
+get_access_token	httpserversetup.py	/^    def get_access_token(self):$/;"	m	class:TokenHandler	access:public
+get_access_token	StartHTTPServer.py	/^    def get_access_token(self):$/;"	m	class:TokenHandler	access:public
+get_access_token_from_url	fbauth.py	/^def get_access_token_from_url(url):$/;"	f	access:public
+get_access_token_from_url	parsetoken.py	/^def get_access_token_from_url(url):$/;"	f	access:public
+HTTPError	fbauth.py	/^from urllib.request import urlopen, HTTPError$/;"	i
+HTTPError	imports.py	/^from urllib.request import urlopen, HTTPError$/;"	i
+HTTPError	redir.py	/^from urllib.request import urlopen, HTTPError$/;"	i
+HTTPServer	fbauth.py	/^from http.server import BaseHTTPRequestHandler, HTTPServer$/;"	i
+HTTPServer	imports.py	/^from http.server import BaseHTTPRequestHandler, HTTPServer$/;"	i
+HTTPServer	redir.py	/^from http.server import BaseHTTPRequestHandler, HTTPServer$/;"	i
+HTTPServerHandler	authhttphandler.py	/^class HTTPServerHandler(BaseHTTPRequestHandler):$/;"	c	inherits:BaseHTTPRequestHandler
+HTTPServerHandler	BaseHTTPHandler.py	/^class HTTPServerHandler(BaseHTTPRequestHandler):$/;"	c	inherits:BaseHTTPRequestHandler
+HTTPServerHandler	fbauth.py	/^class HTTPServerHandler(BaseHTTPRequestHandler):$/;"	c	inherits:BaseHTTPRequestHandler
+HTTPServerHandler	gettoken.py	/^class HTTPServerHandler(BaseHTTPRequestHandler):$/;"	c	inherits:BaseHTTPRequestHandler
+HTTPServerHandler	httpserversetup.py	/^class HTTPServerHandler(BaseHTTPRequestHandler):$/;"	c	inherits:BaseHTTPRequestHandler
+log_message	fbauth.py	/^    def log_message(self, format, *args):$/;"	m	class:HTTPServerHandler	access:public
+open_new	fbauth.py	/^from webbrowser import open_new$/;"	i
+open_new	imports.py	/^from webbrowser import open_new/;"	i
+open_new	redir.py	/^from webbrowser import open_new$/;"	i
+PORT	fbauth.py	/^PORT = 8080$/;"	v
+REDIRECT_URL	fbauth.py	/^REDIRECT_URL = 'http:\/\/localhost:8080\/'$/;"	v
+REDIRECT_URL	redir.py	/^REDIRECT_URL = 'http:\/\/localhost:8080\/'/;"	v
+TokenHandler	fbauth.py	/^class TokenHandler:$/;"	c	inherits:
+TokenHandler	finalmain.py	/^class TokenHandler:$/;"	c	inherits:
+TokenHandler	httpserversetup.py	/^class TokenHandler:$/;"	c	inherits:
+TokenHandler	StartHTTPServer.py	/^class TokenHandler:$/;"	c	inherits:
+urlopen	fbauth.py	/^from urllib.request import urlopen, HTTPError$/;"	i
+urlopen	imports.py	/^from urllib.request import urlopen, HTTPError$/;"	i
+urlopen	redir.py	/^from urllib.request import urlopen, HTTPError$/;"	i
+__init__	authhttphandler.py	/^    def __init__(self, request, address, server, a_id, a_secret):$/;"	m	class:HTTPServerHandler	access:public
+__init__	BaseHTTPHandler.py	/^    def __init__(self, request, address, server):$/;"	m	class:HTTPServerHandler	access:public
+__init__	fbauth.py	/^    def __init__(self, a_id, a_secret):$/;"	m	class:TokenHandler	access:public
+__init__	fbauth.py	/^    def __init__(self, request, address, server, a_id, a_secret):$/;"	m	class:HTTPServerHandler	access:public
+__init__	finalmain.py	/^    def __init__(self, a_id, a_secret):$/;"	m	class:TokenHandler	access:public
+__init__	gettoken.py	/^    def __init__(self, request, address, server, a_id, a_secret):$/;"	m	class:HTTPServerHandler	access:public
+__init__	httphandlerinit.py	/^def __init__(self, request, address, server, a_id, a_secret):$/;"	f	access:public
+__init__	httpserversetup.py	/^    def __init__(self, a_id, a_secret):$/;"	m	class:TokenHandler	access:public
+__init__	httpserversetup.py	/^    def __init__(self, request, address, server, a_id, a_secret):$/;"	m	class:HTTPServerHandler	access:public
+__init__	StartHTTPServer.py	/^    def __init__(self, a_id, a_secret):$/;"	m	class:TokenHandler	access:public

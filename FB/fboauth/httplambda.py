@@ -1,0 +1,1 @@
+lambda request, address, server: HTTPServerHandler(request, address, server, self._id, self._secret)
