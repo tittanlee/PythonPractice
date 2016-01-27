@@ -1,7 +1,7 @@
 import fbconsole
 import facebook
-import requests
-import time
+# import requests
+# import time
 
 
 
@@ -13,9 +13,12 @@ def countdown(count):
   print ("To Post Next\n")
 
 
-# access_token = input('input token:')
-access_token = 'CAACEdEose0cBAHYLVlUjf2gXo64oJcyN8gMqaluYJJETAKSjy7s4Gg9ac9gZBLfSZAKR8sTRVJU4UoMrLc1fJsuFq8ZAyHPQYe9elzO57xZAT1Sboa5be8Bc9b0PLhR4zZA2Q1XSm2Vz80Nmj3pqS8E2uioHrkrOh4JYYNZCqtVhbcT43JUZC86ZAt5EJXcjvv6OnaprKeCynCv1RrEWDPGQ'
+GRAPH_API_EXPLORER_URL = 'https://www.facebook.com/v2.3/dialog/oauth?response_type=token&display=popup&client_id=145634995501895&redirect_uri=https://developers.facebook.com/tools/explorer/callback#&scope=user_groups#'
 
+print('Open your web browser then enter this URL:\n\n\n' + (GRAPH_API_EXPLORER_URL)) 
+
+access_token = input('\n\nAccess Token=')
+# access_token = 'CAACEdEose0cBAKx3VZCeyH6To5whD7sOYZBzeeH1abhaCMUl0yYSDY4C4NWo8Q8kn2IJ3sO6QTprFvwt6EeE5hxEPHsjiMIpDnhgYi3ZCFtxZC5fsuiIcpz9u7LQBLWnAL9aocdmaDz1N0ymgs3zyNROC7oX67PbZByGsxD7kYojqn6HF2c086yecl2yuIk4qWtoR8vjnLbsLQWjZAO9SH'
 
 def GroupGenerator():
   file = open('groupset', mode = 'w', encoding = 'utf-8')
@@ -25,15 +28,14 @@ def GroupGenerator():
     GroupPrivacy = group['privacy']
     GroupId = group['id']
     GroupName = group['name']
-    line = (GroupId + ":" + GroupName + "\n")
+    # print(GroupId + " , " + GroupName)
+
+    line = (GroupId + "," + GroupName + "\n")
     GroupCount += 1
     file.write(line)
 
-
   print("total %s groups be generated\n" %(GroupCount))
   file.close()
-
-
 
 graph = facebook.GraphAPI(access_token, version='2.3')
 GroupGenerator()

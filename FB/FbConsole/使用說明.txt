@@ -1,0 +1,37 @@
+1. groupset，message這2個檔案一定要存在，否則無法執行自動po文。
+
+2. groupset的檔案格式如下，可以自已編輯，或是由run.bat幫你產生出來。
+   GroupId,GroupName
+   例如:
+   12345678,網路賺錢群組
+   33456782,廣告隨你po
+   中間要用逗號分開，中間也不要留空白字。
+
+3. message的檔案格式如下，這一定要自已編輯的。
+   Msg,Link
+   Msg  -> 你想要打的標題
+   Link -> 你想要分享的文章網址
+   例如:
+   太讚了1,http://beefun01.com/1234/
+   太讚了2,http://beefun01.com/1235/
+   太讚了3,http://beefun01.com/1236/
+   
+4. 這個程式只援支有認證過的Facebook帳號。
+
+5. 如何使用
+  5.1 - 登入你的facebook帳號
+  5.2 - 開啟此網址  https://developers.facebook.com/
+  5.3 - 右上角有一個 Add a New App, 
+  5.4 - 選擇WWW
+  5.5 - 為你的app 命名
+  5.6 - 點擊右上角有一個skip quick start
+  5.7 - 你專屬的app 已經制定好了
+
+6. 設定你的app domain url.
+  6.1 - 開啟此網址  https://developers.facebook.com/
+  6.2 - 選擇你剛建立好的app
+  6.3 - 把App ID記起來。等一下會用到。
+  6.4 - 左列Settings->Advanced->Valid OAuth redirect URIs
+  6.5 - 填入http://127.0.0.1:8080
+  6.6 - Save Changes
+
