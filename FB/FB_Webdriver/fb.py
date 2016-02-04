@@ -120,17 +120,23 @@ def facebook_collect_groups_id():
 def facebook_post_to_groups(GroupId, GroupName, TextMessage):
   url = FACEBOOK_URL + '/' + GroupId
   driver.get(url)
-  sleep_time(5, count_down_msg = 'NO')
+  sleep_time(4, count_down_msg = 'NO')
+  
   try:
     TextAreaElem = driver.find_element_by_xpath("//*[@name='xhpc_message_text']")
   except:
-    print("%s %s on %s (%s) failed" %(current_time(), TextMessage, GroupName, GroupId))
+    print("%s %s on %s (%s) NoTextAreaElem" %(current_time(), TextMessage, GroupName, GroupId))
     return "NoTextAreaElem"
 
-  TextAreaElem .send_keys(TextMessage)
-  # driver.implicitly_wait(3) # seconds
-  sleep_time(6, count_down_msg = 'NO')
+  sleep_time(3, count_down_msg = 'NO')
+  try:
+    TextAreaElem.send_keys(TextMessage)
+    # driver.implicitly_wait(3) # seconds
+  except:
+    print("%s %s on %s (%s) send key failed" %(current_time(), TextMessage, GroupName, GroupId))
+    return "SendKeyFailed"
 
+  sleep_time(6, count_down_msg = 'NO')
   retry_count = 0
   while True:
     try:
@@ -281,12 +287,16 @@ while True:
       post_status = facebook_post_to_groups(fb_group_id, fb_group_name,  msg)
 
       # if post status failed, remove the gruoup from list.
+      if (post_status == "SendKeyFailed"):
+        break;
+
       if (post_status != 0):
+        print("remove %s %s" %(fb_group_id, fb_group_name))
         GROUPS_ID_LIST.remove(fb_group_dict)
         break
         
       print('=============== End post ================\n')
-      sleep_time(180)
+      sleep_time(120)
 
       post_count += 1
       if (post_count % 10 == 0):
