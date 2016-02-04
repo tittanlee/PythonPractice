@@ -20,6 +20,8 @@ from datetime import datetime, date, timedelta
 from time import strftime
 from bs4 import BeautifulSoup
 from random import shuffle, randint
+import glob
+
 
 FACEBOOK_URL = 'https://www.facebook.com'
 GROUPS_ID_LIST = []
@@ -58,6 +60,19 @@ def facebook_login(username,password):
           print ("Success\n")
   return driver.get_cookies()
 
+def facebook_logout():
+  print ("\nLogout to Facebook...."),
+  url = "http://www.facebook.com"
+  driver.get(url)
+  logoutMenu = driver.find_element_by_id("logoutMenu")
+  logoutMenu.click()
+  sleep_time(3, "N")
+  # logoutBtn  = driver.find_element_by_xpath("//*[@action='https://www.facebook.com/logout.php']")
+  logoutBtn  = driver.find_element_by_xpath("//*[text()='Log Out']")
+  logoutBtn.click()
+  print ("Logout Success\n")
+
+
 def write_line_to_file(filename, line):
   f = open (filename, 'a', encoding = 'utf-8')
   f.write(line+'\n')
@@ -74,7 +89,7 @@ def facebook_collect_groups_id():
 
   while(True):
     lastCount = lenOfPage
-    # sleep_time(1)
+    # sleep_time(1, N)
     lenOfPage = facebook_scroll_end_of_page() 
     GroupsElemsList = driver.find_elements_by_xpath("//*[@class='groupsRecommendedTitle']")
     if len(GroupsElemsList) > 200:
@@ -164,7 +179,7 @@ def facebook_get_graphic_token():
 
 def facebook_scroll_end_of_page():
   lenOfPage = driver.execute_script("window.scrollTo(0, document.body.scrollHeight);var lenOfPage=document.body.scrollHeight;return lenOfPage;")
-  sleep_time(1)
+  sleep_time(2)
   return lenOfPage
   # match=False
   # while(match==False):
@@ -185,25 +200,26 @@ def facebook_search_by_type(search_type, key_word):
     lenOfPage = facebook_scroll_end_of_page()
     driver.find_element_by_xpath
 
-def get_message_from_file():
-  result = list()
-  message_file = './message.txt'
+def get_message_from_file(message_file):
   if not (os.path.isfile(message_file) and os.access(message_file, os.R_OK)):
     print('%s is not exist' %message_file)
     exit();
 
   f = open(message_file, "r", encoding = 'utf-8')
-  for line in f.readlines():
-    line = line.strip()
-    if not len(line) or line.startswith('#'):
-      continue
-    result.append(line)
+  data = f.read()
   
-  if len(result) == 0:
+  if len(data) == 0:
     print('%s is empty, please check it again' %message_file)
     exit();
 
-  return result
+  return data
+
+def get_arctile_number_list():
+  filelist = []
+  fpath = "./arctile/*"
+  filelist = glob.glob(fpath)
+  return filelist
+
 
 # if sys.platform != 'win32' and sys.platform != 'darwin':
 #   from pyvirtualdisplay import Display
@@ -219,9 +235,8 @@ args = parser.parse_args()
 username = args.username
 password = args.password
 
-
-msglist = get_message_from_file()
-msglist_len = len(msglist)
+acrtile_path_list = get_arctile_number_list()
+acrtile_path_list_len = len(acrtile_path_list)
 
 # if sys.platform != 'win32' and sys.platform != 'darwin' :
 #   display = Display(visible=0, size=(1600, 900))
@@ -231,7 +246,7 @@ notifications_block = 2
 ChromPrefs = GetChromeOptions_Notification(notifications_block)
 
 if sys.platform == 'win32':
-    driver = webdriver.Chrome('W:\\fb-group-crawler\\chromedriver.exe', chrome_options=ChromPrefs)
+    driver = webdriver.Chrome('./chromedriver.exe', chrome_options=ChromPrefs)
 
 if sys.platform == 'darwin':
     driver = webdriver.Chrome('./chromedriver', chrome_options=ChromPrefs)
@@ -249,8 +264,8 @@ facebook_collect_groups_id()
 # else:
 #   print("n")
 
-post_count = 0
 
+post_count = 0
 process_start_time = datetime.now()
 next_start_time = process_start_time + timedelta(seconds = 3600)
 
@@ -259,9 +274,10 @@ while True:
   for fb_group_dict in GROUPS_ID_LIST:
     for fb_group_id, fb_group_name in fb_group_dict.items():
       print('============== Start post ===============')
-      shuffle(msglist)
-      rand_num = randint(0, msglist_len - 1)
-      msg = msglist[rand_num]
+      shuffle(acrtile_path_list)
+      rand_num = randint(0, acrtile_path_list_len - 1)
+      arctile_path = acrtile_path_list[rand_num]
+      msg = get_message_from_file(arctile_path)
       post_status = facebook_post_to_groups(fb_group_id, fb_group_name,  msg)
 
       # if post status failed, remove the gruoup from list.
@@ -270,7 +286,7 @@ while True:
         break
         
       print('=============== End post ================\n')
-      sleep_time(60)
+      sleep_time(180)
 
       post_count += 1
       if (post_count % 10 == 0):
@@ -281,7 +297,7 @@ while True:
       if process_start_time >= next_start_time:
         next_start_time = process_start_time + timedelta(seconds = 3600)
         print("%s Sleeping....   next start time on %s" %(current_time(), next_start_time.strftime('%Y/%m/%d %H:%M:%S')))
-        driver.quit()
+        facebook_logout()
         sleep_time(3600)
         cookies = facebook_login(username,password)
         process_start_time = datetime.now()
