@@ -9,7 +9,6 @@ from selenium.webdriver.common.alert import Alert
 from io import StringIO
 from colorama import init
 from colorama import Fore, Back, Style
-import lxml.html
 import time
 import re
 import requests
@@ -21,10 +20,10 @@ from time import strftime
 from bs4 import BeautifulSoup
 from random import shuffle, randint
 import glob
+import clipboard
 
 
 FACEBOOK_URL = 'https://www.facebook.com'
-GROUPS_ID_LIST = []
 
 def current_time():
   return '[' + (datetime.now()).strftime('%Y/%m/%d %H:%M:%S') + ']'
@@ -32,11 +31,16 @@ def current_time():
 def sleep_time(seconds, count_down_msg = 'YES'):
   while seconds >= 0:
     if count_down_msg == 'YES':
-      print('count down = %04s' %seconds, end = '\r')
+      print('Count down = %04s' %(seconds), end = '\r')
     time.sleep(1)
     seconds = seconds - 1
+
   if count_down_msg == 'YES':
     print(end = '\n')
+
+def rand_sleep_time(rand_start, rand_end, count_down_msg = 'YES'):
+  rand_num = randint(rand_start, rand_end)
+  sleep_time(rand_num, count_down_msg)
 
 
 def facebook_login(username,password):
@@ -80,18 +84,24 @@ def write_line_to_file(filename, line):
 
 
 def facebook_collect_groups_id():
-  print("collecting groups... wait a minutes")
+  GROUPS_FLIE_NAME = './groups.cfg'
+  GROUPS_ID_LIST = list()
+
+  if (os.path.isfile(GROUPS_FLIE_NAME) and os.access(GROUPS_FLIE_NAME, os.R_OK)):
+      os.remove(GROUPS_FLIE_NAME)
+  
+  print("Collecting groups... wait a minutes...")
   url = "https://www.facebook.com/groups/?category=membership"
   driver.get(url)
 
-  GroupsElemsList = driver.find_elements_by_xpath("//*[@class='groupsRecommendedTitle']")
+  # GroupsElemsList = driver.find_elements_by_xpath("//*[@class='groupsRecommendedTitle']")
   lenOfPage = facebook_scroll_end_of_page() 
 
   while(True):
     lastCount = lenOfPage
-    # sleep_time(1, N)
     lenOfPage = facebook_scroll_end_of_page() 
     GroupsElemsList = driver.find_elements_by_xpath("//*[@class='groupsRecommendedTitle']")
+    # Default maxime groups counts is 200
     if len(GroupsElemsList) > 200:
       break
 
@@ -105,7 +115,9 @@ def facebook_collect_groups_id():
     group_id   = group.get_attribute('data-hovercard').split('=')[1]
     GROUPS_ID_LIST.append({group_id:group_name})
     line = group_id + '=' + group_name
-    write_line_to_file('groups.cfg', line) 
+    write_line_to_file(GROUPS_FLIE_NAME, line) 
+  
+  return GROUPS_ID_LIST
 
   #
   # Using BS4 to parser group html source
@@ -120,8 +132,9 @@ def facebook_collect_groups_id():
 def facebook_post_to_groups(GroupId, GroupName, TextMessage):
   url = FACEBOOK_URL + '/' + GroupId
   driver.get(url)
+  clipboard.copy(TextMessage)
   sleep_time(4, count_down_msg = 'NO')
-  
+
   try:
     TextAreaElem = driver.find_element_by_xpath("//*[@name='xhpc_message_text']")
   except:
@@ -130,18 +143,33 @@ def facebook_post_to_groups(GroupId, GroupName, TextMessage):
 
   sleep_time(3, count_down_msg = 'NO')
   try:
-    TextAreaElem.send_keys(TextMessage)
+    TextAreaElem.send_keys("")
+    sleep_time(1, "N")
+
+    # if os == darwin
+    # Mac OsX issue : can not paste using command+v key.
+    # ActionChains(driver).key_down(Keys.COMMAND).send_keys('w').key_up(Keys.COMMAND).perform()
+    
+    # elif os == win:
+    ActionChains(driver).key_down(Keys.CONTROL).send_keys('v').key_up(Keys.CONTROL).perform()
+    sleep_time(1, "N")
+
+    TextAreaElem.send_keys(Keys.ENTER)
     # driver.implicitly_wait(3) # seconds
   except:
     print("%s %s on %s (%s) send key failed" %(current_time(), TextMessage, GroupName, GroupId))
     return "SendKeyFailed"
 
-  sleep_time(6, count_down_msg = 'NO')
+  sleep_time(5, count_down_msg = 'NO')
   retry_count = 0
   while True:
     try:
       PostBtnElem = driver.find_element_by_xpath("//button/span[.='Post']").click()
+      sleep_time(3, count_down_msg = 'NO')
+      print('============== Start post ===============')
       print("%s %s on %s (%s) successed" %(current_time(), TextMessage, GroupName, GroupId))
+      facebook_prsss_like_button()
+      print('=============== End post ================\n')
       break
     except:
       print("Post Button is not exist")
@@ -151,6 +179,7 @@ def facebook_post_to_groups(GroupId, GroupName, TextMessage):
       if retry_count == 5:
         return "NoPostBtnElem"
   
+
   return 0
 
   # PostBtnElem = driver.find_element_by_xpath("//button/span[.='Post']")
@@ -185,7 +214,7 @@ def facebook_get_graphic_token():
 
 def facebook_scroll_end_of_page():
   lenOfPage = driver.execute_script("window.scrollTo(0, document.body.scrollHeight);var lenOfPage=document.body.scrollHeight;return lenOfPage;")
-  sleep_time(2)
+  sleep_time(2, "N")
   return lenOfPage
   # match=False
   # while(match==False):
@@ -206,6 +235,11 @@ def facebook_search_by_type(search_type, key_word):
     lenOfPage = facebook_scroll_end_of_page()
     driver.find_element_by_xpath
 
+def facebook_prsss_like_button():
+  print('%s Press like button' %current_time())
+  like_btn_elem = driver.find_elements_by_xpath("//a[@data-testid='fb-ufi-likelink']")[0]
+  like_btn_elem.click()
+
 def get_message_from_file(message_file):
   if not (os.path.isfile(message_file) and os.access(message_file, os.R_OK)):
     print('%s is not exist' %message_file)
@@ -220,18 +254,25 @@ def get_message_from_file(message_file):
 
   return data
 
-def get_arctile_number_list():
+def get_article_number_list():
   filelist = []
-  fpath = "./arctile/*"
+  fpath = "./article/*"
   filelist = glob.glob(fpath)
   return filelist
 
+def chrome_intialization():
+  global driver
+  notifications_block = 2
+  ChromPrefs = GetChromeOptions_Notification(notifications_block)
 
-# if sys.platform != 'win32' and sys.platform != 'darwin':
-#   from pyvirtualdisplay import Display
+  if sys.platform == 'win32':
+    driver = webdriver.Chrome('./chromedriver.exe', chrome_options=ChromPrefs)
+
+  if sys.platform == 'darwin':
+    driver = webdriver.Chrome('./chromedriver', chrome_options=ChromPrefs)
+
 
 init(autoreset=True)
-
 parser = argparse.ArgumentParser(usage="-h for full usage")
 parser.add_argument('-username', dest="username", help='facebook username to login with (e.g. example@example.com)',required=True)
 parser.add_argument('-password', dest="password", help='facebook password to login with (e.g. \'password\')',required=True)
@@ -241,77 +282,58 @@ args = parser.parse_args()
 username = args.username
 password = args.password
 
-acrtile_path_list = get_arctile_number_list()
+acrtile_path_list = get_article_number_list()
 acrtile_path_list_len = len(acrtile_path_list)
 
 # if sys.platform != 'win32' and sys.platform != 'darwin' :
 #   display = Display(visible=0, size=(1600, 900))
 #   display.start()
 
-notifications_block = 2
-ChromPrefs = GetChromeOptions_Notification(notifications_block)
 
-if sys.platform == 'win32':
-    driver = webdriver.Chrome('./chromedriver.exe', chrome_options=ChromPrefs)
+post_count = 1
+each_account_intervals_delay = 60 * 60
+each_article_intervals_delay_min = 4 * 60
+each_article_intervals_delay_max = 8 * 60
 
-if sys.platform == 'darwin':
-    driver = webdriver.Chrome('./chromedriver', chrome_options=ChromPrefs)
-
-
-cookies = dict()
-cookies = facebook_login(username,password)
-
-# read_message_from_file()
-# facebook_get_graphic_token()
-facebook_collect_groups_id()
-# modify_group_list_file = input('Do you want to modify groups.cfg. Y or N : ')
-# if modify_group_list_file == 'Y':
-#   print("y")
-# else:
-#   print("n")
-
-
-post_count = 0
-process_start_time = datetime.now()
-next_start_time = process_start_time + timedelta(seconds = 3600)
-
-# for msg in msglist:
 while True:
-  for fb_group_dict in GROUPS_ID_LIST:
-    for fb_group_id, fb_group_name in fb_group_dict.items():
-      print('============== Start post ===============')
-      shuffle(acrtile_path_list)
-      rand_num = randint(0, acrtile_path_list_len - 1)
-      arctile_path = acrtile_path_list[rand_num]
-      msg = get_message_from_file(arctile_path)
-      post_status = facebook_post_to_groups(fb_group_id, fb_group_name,  msg)
+  process_start_time = datetime.now()
+  next_start_time = process_start_time + timedelta(seconds = 3600)
 
-      # if post status failed, remove the gruoup from list.
-      if (post_status == "SendKeyFailed"):
-        break;
+  chrome_intialization()
+  cookies = dict()
+  cookies = facebook_login(username,password)
+  fb_groups_list = facebook_collect_groups_id()
 
-      if (post_status != 0):
-        print("remove %s %s" %(fb_group_id, fb_group_name))
-        GROUPS_ID_LIST.remove(fb_group_dict)
-        break
-        
-      print('=============== End post ================\n')
-      sleep_time(120)
+  while process_start_time <= next_start_time:
+    for fb_group_dict in fb_groups_list:
+      for fb_group_id, fb_group_name in fb_group_dict.items():
+        shuffle(acrtile_path_list)
+        rand_num = randint(0, acrtile_path_list_len - 1)
+        article_path = acrtile_path_list[rand_num]
+        msg = get_message_from_file(article_path)
+        post_status = facebook_post_to_groups(fb_group_id, fb_group_name,  msg)
 
-      post_count += 1
-      if (post_count % 10 == 0):
-        print("%s already post %s articles, force to sleep 10 minutes\n" %(current_time(), post_count))
-        sleep_time(600)
+        # if post status failed, remove the gruoup from list.
+        if (post_status == "SendKeyFailed") or (post_status == "NoTextAreaElem"):
+          print("Remove %s %s" %(fb_group_id, fb_group_name))
+          fb_groups_list.remove(fb_group_dict)
+          break
+          
+        # if post successed then random sleep 2 ~ 4 mins
+        rand_sleep_time(each_article_intervals_delay_min, each_article_intervals_delay_max)
+        post_count += 1
 
-      process_start_time = datetime.now()
-      if process_start_time >= next_start_time:
-        next_start_time = process_start_time + timedelta(seconds = 3600)
-        print("%s Sleeping....   next start time on %s" %(current_time(), next_start_time.strftime('%Y/%m/%d %H:%M:%S')))
-        facebook_logout()
-        sleep_time(3600)
-        cookies = facebook_login(username,password)
         process_start_time = datetime.now()
-        next_start_time = process_start_time + timedelta(seconds = 3600)
+        if process_start_time >= next_start_time:
+          next_time = process_start_time + timedelta(seconds = 3600)
+          print("%s Sleeping....   next start time on %s" %(current_time(), next_time.strftime('%Y/%m/%d %H:%M:%S')))
+          facebook_logout()
+          driver.close()
+          sleep_time(each_account_intervals_delay)
+          break
+
+      if process_start_time >= next_start_time:
+        break
 
 
 # driver.close()
