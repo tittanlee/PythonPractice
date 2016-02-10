@@ -7,12 +7,9 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.alert import Alert
 from io import StringIO
-from colorama import init
-from colorama import Fore, Back, Style
 import time
 import re
 import requests
-import argparse
 import sys
 import os
 from datetime import datetime, date, timedelta
@@ -42,7 +39,6 @@ def rand_sleep_time(rand_start, rand_end, count_down_msg = 'YES'):
   rand_num = randint(rand_start, rand_end)
   sleep_time(rand_num, count_down_msg)
 
-
 def facebook_login(username,password):
   print ("\nLogin to Facebook...."),
 
@@ -57,11 +53,11 @@ def facebook_login(username,password):
   sleep_time(1)
   html_source = driver.page_source
   if "Please re-enter your password" in html_source or "Incorrect Email" in html_source:
-          print ("Incorrect Username or Password")
-          driver.close()
-          exit()
+    print ("Incorrect Username or Password")
+    driver.close()
+    exit()
   else:
-          print ("Success\n")
+    print ("Success\n")
   return driver.get_cookies()
 
 def facebook_logout():
@@ -129,7 +125,7 @@ def facebook_collect_groups_id():
   #   group_link = groups.get('href')
 
 
-def facebook_post_to_groups(GroupId, GroupName, TextMessage):
+def facebook_post_to_groups(GroupId, GroupName, TextMessage, number_idx):
   url = FACEBOOK_URL + '/' + GroupId
   driver.get(url)
   clipboard.copy(TextMessage)
@@ -141,20 +137,18 @@ def facebook_post_to_groups(GroupId, GroupName, TextMessage):
     print("%s %s on %s (%s) NoTextAreaElem" %(current_time(), TextMessage, GroupName, GroupId))
     return "NoTextAreaElem"
 
-  sleep_time(3, count_down_msg = 'NO')
+  # sleep_time(3, count_down_msg = 'NO')
   try:
     TextAreaElem.send_keys("")
-    sleep_time(1, "N")
 
     # if os == darwin
     # Mac OsX issue : can not paste using command+v key.
-    # ActionChains(driver).key_down(Keys.COMMAND).send_keys('w').key_up(Keys.COMMAND).perform()
+    # ActionChains(driver).key_down(Keys.COMMAND).send_keys('v').key_up(Keys.COMMAND).perform()
     
     # elif os == win:
     ActionChains(driver).key_down(Keys.CONTROL).send_keys('v').key_up(Keys.CONTROL).perform()
     sleep_time(1, "N")
 
-    TextAreaElem.send_keys(Keys.ENTER)
     # driver.implicitly_wait(3) # seconds
   except:
     print("%s %s on %s (%s) send key failed" %(current_time(), TextMessage, GroupName, GroupId))
@@ -166,10 +160,10 @@ def facebook_post_to_groups(GroupId, GroupName, TextMessage):
     try:
       PostBtnElem = driver.find_element_by_xpath("//button/span[.='Post']").click()
       sleep_time(3, count_down_msg = 'NO')
-      print('============== Start post ===============')
-      print("%s %s on %s (%s) successed" %(current_time(), TextMessage, GroupName, GroupId))
+      print('%s ============== Start post NO.%s ==============='   %(current_time(), number_idx))
+      print("%s on %s (%s) successed" %(TextMessage, GroupName, GroupId))
       facebook_prsss_like_button()
-      print('=============== End post ================\n')
+      print('%s ============== End  post  NO.%s ===============\n' %(current_time(), number_idx))
       break
     except:
       print("Post Button is not exist")
@@ -254,9 +248,24 @@ def get_message_from_file(message_file):
 
   return data
 
-def get_article_number_list():
+def get_account_info_from_file(account_file_path):
+  if not (os.path.isfile(account_file_path) and os.access(account_file_path, os.R_OK)):
+    print('%s is not exist' %account_file_path)
+    exit();
+
+  content_list = list()
+  f = open(account_file_path, "r", encoding = 'utf-8')
+  
+  for line in f.readlines():                          
+    if not len(line) or line.startswith('#'):     
+      continue                                 
+    line = line.strip(" \r\n")
+    line = line.replace(" ","")
+    content_list.append(line)
+  return content_list
+
+def get_article_number_list(fpath):
   filelist = []
-  fpath = "./article/*"
   filelist = glob.glob(fpath)
   return filelist
 
@@ -272,32 +281,43 @@ def chrome_intialization():
     driver = webdriver.Chrome('./chromedriver', chrome_options=ChromPrefs)
 
 
-init(autoreset=True)
-parser = argparse.ArgumentParser(usage="-h for full usage")
-parser.add_argument('-username', dest="username", help='facebook username to login with (e.g. example@example.com)',required=True)
-parser.add_argument('-password', dest="password", help='facebook password to login with (e.g. \'password\')',required=True)
-
-args = parser.parse_args()
-
-username = args.username
-password = args.password
-
-acrtile_path_list = get_article_number_list()
-acrtile_path_list_len = len(acrtile_path_list)
 
 # if sys.platform != 'win32' and sys.platform != 'darwin' :
 #   display = Display(visible=0, size=(1600, 900))
 #   display.start()
 
 
-post_count = 1
 each_account_intervals_delay = 60 * 60
-each_article_intervals_delay_min = 4 * 60
-each_article_intervals_delay_max = 8 * 60
+each_article_intervals_delay_min = 2 * 60
+each_article_intervals_delay_max = 5 * 60
 
+account_info_file_path_name = './account.cfg'
+account_info_list = get_account_info_from_file(account_info_file_path_name)
+account_info_list_len = len(account_info_list)
+account_list_idx = 0
+if (account_info_list_len == 0):
+  print('Account file is not exist : please create "account" file')
+  exit()
+
+article_file_path = "./article/*"
+article_path_list = get_article_number_list(article_file_path)
+article_path_list_len = len(article_path_list)
+if (article_path_list_len == 0):
+  print('Article file is not exist : please create "./article/*"')
+  exit()
+
+post_count = 1
 while True:
   process_start_time = datetime.now()
-  next_start_time = process_start_time + timedelta(seconds = 3600)
+  next_start_time = process_start_time + timedelta(seconds = each_account_intervals_delay)
+
+  account_info = account_info_list[account_list_idx].split(",")
+  username = account_info[0]
+  password = account_info[1]
+  account_list_idx = account_list_idx + 1
+  if (account_list_idx >= account_info_list_len):
+    account_list_idx = 0
+
 
   chrome_intialization()
   cookies = dict()
@@ -307,11 +327,11 @@ while True:
   while process_start_time <= next_start_time:
     for fb_group_dict in fb_groups_list:
       for fb_group_id, fb_group_name in fb_group_dict.items():
-        shuffle(acrtile_path_list)
-        rand_num = randint(0, acrtile_path_list_len - 1)
-        article_path = acrtile_path_list[rand_num]
+        shuffle(article_path_list)
+        rand_num = randint(0, article_path_list_len - 1)
+        article_path = article_path_list[rand_num]
         msg = get_message_from_file(article_path)
-        post_status = facebook_post_to_groups(fb_group_id, fb_group_name,  msg)
+        post_status = facebook_post_to_groups(fb_group_id, fb_group_name,  msg, post_count)
 
         # if post status failed, remove the gruoup from list.
         if (post_status == "SendKeyFailed") or (post_status == "NoTextAreaElem"):
@@ -325,11 +345,11 @@ while True:
 
         process_start_time = datetime.now()
         if process_start_time >= next_start_time:
-          next_time = process_start_time + timedelta(seconds = 3600)
+          next_time = process_start_time + timedelta(seconds = each_account_intervals_delay)
           print("%s Sleeping....   next start time on %s" %(current_time(), next_time.strftime('%Y/%m/%d %H:%M:%S')))
           facebook_logout()
           driver.close()
-          sleep_time(each_account_intervals_delay)
+          # sleep_time(each_account_intervals_delay)
           break
 
       if process_start_time >= next_start_time:
