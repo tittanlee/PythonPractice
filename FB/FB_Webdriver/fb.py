@@ -26,6 +26,8 @@ def current_time():
   return '[' + (datetime.now()).strftime('%Y/%m/%d %H:%M:%S') + ']'
 
 def sleep_time(seconds, count_down_msg = 'YES'):
+  if (count_down_msg == "YES"):
+    print("pause %s seconds...." %(seconds))
   while seconds >= 0:
     if count_down_msg == 'YES':
       print('Count down = %04s' %(seconds), end = '\r')
@@ -39,7 +41,7 @@ def rand_sleep_time(rand_start, rand_end, count_down_msg = 'YES'):
   rand_num = randint(rand_start, rand_end)
   sleep_time(rand_num, count_down_msg)
 
-def facebook_login(username,password):
+def facebook_login(username, password):
   print ("\nLogin to Facebook...."),
 
   sys.stdout.flush() 
@@ -50,7 +52,7 @@ def facebook_login(username,password):
   elem = driver.find_element_by_id("pass")
   elem.send_keys(password)
   elem.send_keys(Keys.RETURN)
-  sleep_time(1)
+  sleep_time(1, "N")
   html_source = driver.page_source
   if "Please re-enter your password" in html_source or "Incorrect Email" in html_source:
     print ("Incorrect Username or Password")
@@ -134,7 +136,7 @@ def facebook_post_to_groups(GroupId, GroupName, TextMessage, number_idx):
   try:
     TextAreaElem = driver.find_element_by_xpath("//*[@name='xhpc_message_text']")
   except:
-    print("%s %s on %s (%s) NoTextAreaElem" %(current_time(), TextMessage, GroupName, GroupId))
+    print("%s %s on %s (%s) NoTextAreaElem" %(current_time(), TextMessage.strip(" \r\n"), GroupName, GroupId))
     return "NoTextAreaElem"
 
   # sleep_time(3, count_down_msg = 'NO')
@@ -148,10 +150,11 @@ def facebook_post_to_groups(GroupId, GroupName, TextMessage, number_idx):
     # elif os == win:
     ActionChains(driver).key_down(Keys.CONTROL).send_keys('v').key_up(Keys.CONTROL).perform()
     sleep_time(1, "N")
+    ActionChains(driver).key_down(Keys.ENTER).perform()
 
     # driver.implicitly_wait(3) # seconds
   except:
-    print("%s %s on %s (%s) send key failed" %(current_time(), TextMessage, GroupName, GroupId))
+    print("%s %s on %s (%s) send key failed" %(current_time(), TextMessage.strip(" \r\n"), GroupName, GroupId))
     return "SendKeyFailed"
 
   sleep_time(5, count_down_msg = 'NO')
@@ -166,7 +169,7 @@ def facebook_post_to_groups(GroupId, GroupName, TextMessage, number_idx):
       print('%s ============== End  post  NO.%s ===============\n' %(current_time(), number_idx))
       break
     except:
-      print("Post Button is not exist")
+      print("%s Post Button is not exist" %(current_time()))
       retry_count = retry_count + 1
       sleep_time(1, 'NO')
 
@@ -335,7 +338,7 @@ while True:
 
         # if post status failed, remove the gruoup from list.
         if (post_status == "SendKeyFailed") or (post_status == "NoTextAreaElem"):
-          print("Remove %s %s" %(fb_group_id, fb_group_name))
+          print("%s Remove %s %s" %(current_time(), fb_group_id, fb_group_name))
           fb_groups_list.remove(fb_group_dict)
           break
           
