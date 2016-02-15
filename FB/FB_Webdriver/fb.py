@@ -6,6 +6,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.alert import Alert
+from selenium.common.exceptions import *
 from io import StringIO
 import time
 import re
@@ -17,7 +18,7 @@ from time import strftime
 from bs4 import BeautifulSoup
 from random import shuffle, randint
 import glob
-import clipboard
+import pyperclip
 
 
 FACEBOOK_URL = 'https://www.facebook.com'
@@ -103,17 +104,16 @@ def facebook_collect_groups_id():
   url = "https://www.facebook.com/groups/?category=membership"
   driver.get(url)
 
-  # GroupsElemsList = driver.find_elements_by_xpath("//*[@class='groupsRecommendedTitle']")
+  GroupsElemsList = driver.find_elements_by_xpath("//*[@class='groupsRecommendedTitle']")
   lenOfPage = facebook_scroll_end_of_page() 
 
   while(True):
+    if len(GroupsElemsList) > COLLET_MAX_GROUPS_COUNT:
+      break
     lastCount = lenOfPage
     lenOfPage = facebook_scroll_end_of_page() 
     GroupsElemsList = driver.find_elements_by_xpath("//*[@class='groupsRecommendedTitle']")
     # Default maxime groups counts is 200
-    if len(GroupsElemsList) > 200:
-      break
-
     if lastCount == lenOfPage:
       break
 
@@ -139,13 +139,16 @@ def facebook_collect_groups_id():
 
 
 def facebook_post_to_groups(GroupId, GroupName, TextMessage, number_idx):
-  print('%s ============== Start post NO.%s ==============='   %(current_time(), number_idx))
   print('%s Entering into %s (%s)'   %(current_time(), GroupName, GroupId))
   post_status = "Successed"
   url = FACEBOOK_URL + '/' + GroupId
-  driver.get(url)
-  sleep_time(4, count_down_msg = 'NO')
+  try:
+    driver.get(url)
+  except UnexpectedAlertPresentException:
+    sleep_time(2, "NO")
+    Alert(driver).accept()
 
+  sleep_time(5, "NO")
   try:
     TextAreaElem = driver.find_element_by_xpath("//*[@name='xhpc_message_text']")
   except:
@@ -155,19 +158,14 @@ def facebook_post_to_groups(GroupId, GroupName, TextMessage, number_idx):
   if (post_status == "Successed"):
     sleep_time(3, count_down_msg = 'NO')
     try:
-      clipboard.copy(TextMessage)
+      # TextAreaElem.click()
       TextAreaElem.send_keys("")
-      sleep_time(1, "N")
-
-      # if os == darwin
-      # Mac OsX issue : can not paste using command+v key.
-      # ActionChains(driver).key_down(Keys.COMMAND).send_keys('v').key_up(Keys.COMMAND).perform()
-      
-      # elif os == win:
+      pyperclip.copy(TextMessage)
+      sleep_time(2, "N")
       ActionChains(driver).key_down(Keys.CONTROL).send_keys('v').key_up(Keys.CONTROL).perform()
       print("%s" %(TextMessage))
       sleep_time(1, "N")
-      ActionChains(driver).key_down(Keys.ENTER).perform()
+      # ActionChains(driver).key_down(Keys.ENTER).perform()
     except:
       print("%s %s on %s (%s) send key failed" %(current_time(), TextMessage.strip(" \r\n"), GroupName, GroupId))
       post_status = "SendKeyFailed"
@@ -177,7 +175,8 @@ def facebook_post_to_groups(GroupId, GroupName, TextMessage, number_idx):
     retry_count = 0
     while True:
       try:
-        PostBtnElem = driver.find_element_by_xpath("//button/span[.='Post']").click()
+        # PostBtnElem = driver.find_element_by_xpath("//button/span[.='Post']").click()
+        PostBtnElem = driver.find_element_by_xpath("//button/span[text()='發佈']").click()
         sleep_time(3, count_down_msg = 'NO')
         print("%s Post button pressed success" %(current_time()))
         break
@@ -189,7 +188,6 @@ def facebook_post_to_groups(GroupId, GroupName, TextMessage, number_idx):
         if retry_count == 5:
           post_status = "NoPostBtnElem"
 
-  print('%s ============== End  post  NO.%s ===============' %(current_time(), number_idx))
   return post_status
 
 def GetChromeOptions_Notification(Value):
@@ -248,7 +246,7 @@ def facebook_prsss_like_button(user_name):
       user_article_xpath = ('//a[text()="%s"]' %user_name)
       user_article = content_area.find_element_by_xpath(user_article_xpath)
     except:
-      print("%s %s post article can not found" %(current_time(), user_name))
+      # print("%s %s post article can not found, press like button failed." %(current_time(), user_name))
       continue
 
     like_btn_elem = content_area.find_element_by_xpath("//a[@data-testid='fb-ufi-likelink']")
@@ -327,9 +325,11 @@ def chrome_intialization():
 #   display.start()
 
 
-each_account_intervals_delay = 60 * 60
-each_article_intervals_delay_min = 2 * 60
-each_article_intervals_delay_max = 5 * 60
+EACH_ACCOUNT_INTERVALS_DELAY     = 60 * 60
+EACH_ARTICLE_INTERVALS_DELAY_MIN = 2 * 60
+EACH_ARTICLE_INTERVALS_DELAY_MAX = 5 * 60
+COLLET_MAX_GROUPS_COUNT          = 200
+
 
 account_info_file_path_name = './account.cfg'
 account_info_list = get_account_info_from_file(account_info_file_path_name)
@@ -349,7 +349,7 @@ if (article_path_list_len == 0):
 post_count = 1
 while True:
   process_start_time = datetime.now()
-  next_start_time = process_start_time + timedelta(seconds = each_account_intervals_delay)
+  next_start_time = process_start_time + timedelta(seconds = EACH_ACCOUNT_INTERVALS_DELAY)
 
   account_info = account_info_list[account_list_idx].split(",")
   username = account_info[0]
@@ -372,28 +372,32 @@ while True:
         rand_num = randint(0, article_path_list_len - 1)
         article_path = article_path_list[rand_num]
         msg = get_message_from_file(article_path)
+
+        print('\n%s ============== Start post NO.%s ==============='   %(current_time(), post_count))
         post_status = facebook_post_to_groups(fb_group_id, fb_group_name,  msg, post_count)
 
         # if post status failed, remove the gruoup from list.
         if (post_status == "SendKeyFailed") or (post_status == "NoTextAreaElem"):
-          print("%s Remove %s %s" %(current_time(), fb_group_id, fb_group_name))
           fb_groups_list.remove(fb_group_dict)
+          print("%s Remove %s %s" %(current_time(), fb_group_id, fb_group_name))
+          print('%s ============== End  post  NO.%s ===============\n' %(current_time(), post_count))
           break
+        else:
+          # If post successed, press like button.
+          facebook_prsss_like_button(user_name)
+          print('%s ============== End  post  NO.%s ===============\n' %(current_time(), post_count))
 
-        # If post successed, press like button.
-        facebook_prsss_like_button(user_name)
-          
         # if post successed then random sleep 2 ~ 4 mins
-        rand_sleep_time(each_article_intervals_delay_min, each_article_intervals_delay_max)
+        rand_sleep_time(EACH_ARTICLE_INTERVALS_DELAY_MIN, EACH_ARTICLE_INTERVALS_DELAY_MAX)
         post_count += 1
 
         process_start_time = datetime.now()
         if process_start_time >= next_start_time:
-          next_time = process_start_time + timedelta(seconds = each_account_intervals_delay)
+          next_time = process_start_time + timedelta(seconds = EACH_ACCOUNT_INTERVALS_DELAY)
           print("%s Sleeping....   next start time on %s" %(current_time(), next_time.strftime('%Y/%m/%d %H:%M:%S')))
           facebook_logout(username)
           driver.close()
-          # sleep_time(each_account_intervals_delay)
+          # sleep_time(EACH_ACCOUNT_INTERVALS_DELAY)
           break
 
       if process_start_time >= next_start_time:
