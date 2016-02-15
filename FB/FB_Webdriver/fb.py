@@ -41,8 +41,13 @@ def rand_sleep_time(rand_start, rand_end, count_down_msg = 'YES'):
   rand_num = randint(rand_start, rand_end)
   sleep_time(rand_num, count_down_msg)
 
+def facebook_get_user_info():
+  user_name_elem = driver.find_element_by_xpath("//div[@class='linkWrap noCount']")
+  user_name = user_name_elem.text
+  return user_name
+
 def facebook_login(username, password):
-  print ("\nLogin to Facebook...."),
+  print ("%s %s Login to Facebook...." %(current_time(), username)),
 
   sys.stdout.flush() 
   url = "http://www.facebook.com"
@@ -54,25 +59,31 @@ def facebook_login(username, password):
   elem.send_keys(Keys.RETURN)
   sleep_time(1, "N")
   html_source = driver.page_source
-  if "Please re-enter your password" in html_source or "Incorrect Email" in html_source:
-    print ("Incorrect Username or Password")
+  if "Forgot password?" in html_source or "忘記密碼？" in html_source:
+    print ("%s Incorrect Username or Password" %(current_time()))
     driver.close()
     exit()
   else:
-    print ("Success\n")
+    print ("%s %s Login to Facebook success" %(current_time(), username))
   return driver.get_cookies()
 
-def facebook_logout():
-  print ("\nLogout to Facebook...."),
-  url = "http://www.facebook.com"
+def facebook_logout(username):
+  print ("%s %s Logout to Facebook...." %(current_time(), username))
+  url = "http://www.facebook.com/logout.php"
   driver.get(url)
-  logoutMenu = driver.find_element_by_id("logoutMenu")
+  try:
+    logoutMenu = driver.find_element_by_id("logoutMenu")
+  except:
+    print('%s %s logout memu can not find' %(current_time(), username))
+    return "NoLogoutMenu"
+
   logoutMenu.click()
   sleep_time(3, "N")
   # logoutBtn  = driver.find_element_by_xpath("//*[@action='https://www.facebook.com/logout.php']")
   logoutBtn  = driver.find_element_by_xpath("//*[text()='Log Out']")
   logoutBtn.click()
-  print ("Logout Success\n")
+  print ("%s %s Logout Success\n" %(current_time(), username))
+  return "Success"
 
 
 def write_line_to_file(filename, line):
@@ -88,7 +99,7 @@ def facebook_collect_groups_id():
   if (os.path.isfile(GROUPS_FLIE_NAME) and os.access(GROUPS_FLIE_NAME, os.R_OK)):
       os.remove(GROUPS_FLIE_NAME)
   
-  print("Collecting groups... wait a minutes...")
+  print("%s Collecting groups... wait a minutes..." %(current_time()))
   url = "https://www.facebook.com/groups/?category=membership"
   driver.get(url)
 
@@ -106,7 +117,7 @@ def facebook_collect_groups_id():
     if lastCount == lenOfPage:
       break
 
-  print("total %s groups" %(len(GroupsElemsList)))
+  print("%s total %s groups" %(current_time(), len(GroupsElemsList)))
   for group in GroupsElemsList:
     group_name = group.text
     group_link = group.get_attribute('href') 
@@ -128,60 +139,58 @@ def facebook_collect_groups_id():
 
 
 def facebook_post_to_groups(GroupId, GroupName, TextMessage, number_idx):
+  print('%s ============== Start post NO.%s ==============='   %(current_time(), number_idx))
+  print('%s Entering into %s (%s)'   %(current_time(), GroupName, GroupId))
+  post_status = "Successed"
   url = FACEBOOK_URL + '/' + GroupId
   driver.get(url)
-  clipboard.copy(TextMessage)
   sleep_time(4, count_down_msg = 'NO')
 
   try:
     TextAreaElem = driver.find_element_by_xpath("//*[@name='xhpc_message_text']")
   except:
     print("%s %s on %s (%s) NoTextAreaElem" %(current_time(), TextMessage.strip(" \r\n"), GroupName, GroupId))
-    return "NoTextAreaElem"
+    post_status = "NoTextAreaElem"
 
-  # sleep_time(3, count_down_msg = 'NO')
-  try:
-    TextAreaElem.send_keys("")
-
-    # if os == darwin
-    # Mac OsX issue : can not paste using command+v key.
-    # ActionChains(driver).key_down(Keys.COMMAND).send_keys('v').key_up(Keys.COMMAND).perform()
-    
-    # elif os == win:
-    ActionChains(driver).key_down(Keys.CONTROL).send_keys('v').key_up(Keys.CONTROL).perform()
-    sleep_time(1, "N")
-    ActionChains(driver).key_down(Keys.ENTER).perform()
-
-    # driver.implicitly_wait(3) # seconds
-  except:
-    print("%s %s on %s (%s) send key failed" %(current_time(), TextMessage.strip(" \r\n"), GroupName, GroupId))
-    return "SendKeyFailed"
-
-  sleep_time(5, count_down_msg = 'NO')
-  retry_count = 0
-  while True:
+  if (post_status == "Successed"):
+    sleep_time(3, count_down_msg = 'NO')
     try:
-      PostBtnElem = driver.find_element_by_xpath("//button/span[.='Post']").click()
-      sleep_time(3, count_down_msg = 'NO')
-      print('%s ============== Start post NO.%s ==============='   %(current_time(), number_idx))
-      print("%s on %s (%s) successed" %(TextMessage, GroupName, GroupId))
-      facebook_prsss_like_button()
-      print('%s ============== End  post  NO.%s ===============\n' %(current_time(), number_idx))
-      break
+      clipboard.copy(TextMessage)
+      TextAreaElem.send_keys("")
+      sleep_time(1, "N")
+
+      # if os == darwin
+      # Mac OsX issue : can not paste using command+v key.
+      # ActionChains(driver).key_down(Keys.COMMAND).send_keys('v').key_up(Keys.COMMAND).perform()
+      
+      # elif os == win:
+      ActionChains(driver).key_down(Keys.CONTROL).send_keys('v').key_up(Keys.CONTROL).perform()
+      print("%s" %(TextMessage))
+      sleep_time(1, "N")
+      ActionChains(driver).key_down(Keys.ENTER).perform()
     except:
-      print("%s Post Button is not exist" %(current_time()))
-      retry_count = retry_count + 1
-      sleep_time(1, 'NO')
+      print("%s %s on %s (%s) send key failed" %(current_time(), TextMessage.strip(" \r\n"), GroupName, GroupId))
+      post_status = "SendKeyFailed"
 
-      if retry_count == 5:
-        return "NoPostBtnElem"
-  
+  if (post_status == "Successed"):
+    sleep_time(5, count_down_msg = 'NO')
+    retry_count = 0
+    while True:
+      try:
+        PostBtnElem = driver.find_element_by_xpath("//button/span[.='Post']").click()
+        sleep_time(3, count_down_msg = 'NO')
+        print("%s Post button pressed success" %(current_time()))
+        break
+      except:
+        print("%s Post Button is not exist" %(current_time()))
+        retry_count = retry_count + 1
+        sleep_time(1, 'NO')
 
-  return 0
+        if retry_count == 5:
+          post_status = "NoPostBtnElem"
 
-  # PostBtnElem = driver.find_element_by_xpath("//button/span[.='Post']")
-  # driver.implicitly_wait(3) # seconds
-  # PostBtnElem.click()
+  print('%s ============== End  post  NO.%s ===============' %(current_time(), number_idx))
+  return post_status
 
 def GetChromeOptions_Notification(Value):
   #
@@ -232,10 +241,36 @@ def facebook_search_by_type(search_type, key_word):
     lenOfPage = facebook_scroll_end_of_page()
     driver.find_element_by_xpath
 
-def facebook_prsss_like_button():
-  print('%s Press like button' %current_time())
-  like_btn_elem = driver.find_elements_by_xpath("//a[@data-testid='fb-ufi-likelink']")[0]
-  like_btn_elem.click()
+def facebook_prsss_like_button(user_name):
+  user_content_wrapper_elems = driver.find_elements_by_xpath("//div[@class='userContentWrapper _5pcr']")
+  for content_area in user_content_wrapper_elems:
+    try:
+      user_article_xpath = ('//a[text()="%s"]' %user_name)
+      user_article = content_area.find_element_by_xpath(user_article_xpath)
+    except:
+      print("%s %s post article can not found" %(current_time(), user_name))
+      continue
+
+    like_btn_elem = content_area.find_element_by_xpath("//a[@data-testid='fb-ufi-likelink']")
+    like_btn_elem.click()
+    print('%s Press like button' %current_time())
+    break
+
+
+
+
+
+
+  # try:
+  #   user_article_xpath = ('//a[text()="%s"]' %user_name)
+  #   user_article = driver.find_element_by_xpath(user_article_xpath)
+  # except:
+  #   print("%s %s post article can not found" %(current_time(), user_name))
+  #   return "NotFound"
+
+  # like_btn_elem = driver.find_elements_by_xpath("//a[@data-testid='fb-ufi-likelink']")[0]
+  # like_btn_elem.click()
+  # print('%s Press like button' %current_time())
 
 def get_message_from_file(message_file):
   if not (os.path.isfile(message_file) and os.access(message_file, os.R_OK)):
@@ -249,6 +284,7 @@ def get_message_from_file(message_file):
     print('%s is empty, please check it again' %message_file)
     exit();
 
+  f.close()
   return data
 
 def get_account_info_from_file(account_file_path):
@@ -260,11 +296,12 @@ def get_account_info_from_file(account_file_path):
   f = open(account_file_path, "r", encoding = 'utf-8')
   
   for line in f.readlines():                          
-    if not len(line) or line.startswith('#'):     
+    if not len(line) or line.startswith('#') or line.startswith('\n'):     
       continue                                 
     line = line.strip(" \r\n")
     line = line.replace(" ","")
     content_list.append(line)
+  f.close()
   return content_list
 
 def get_article_number_list(fpath):
@@ -299,7 +336,7 @@ account_info_list = get_account_info_from_file(account_info_file_path_name)
 account_info_list_len = len(account_info_list)
 account_list_idx = 0
 if (account_info_list_len == 0):
-  print('Account file is not exist : please create "account" file')
+  print('Account file is not exist : please create "account.cfg" file')
   exit()
 
 article_file_path = "./article/*"
@@ -321,10 +358,11 @@ while True:
   if (account_list_idx >= account_info_list_len):
     account_list_idx = 0
 
-
   chrome_intialization()
   cookies = dict()
   cookies = facebook_login(username,password)
+  user_name = facebook_get_user_info()
+
   fb_groups_list = facebook_collect_groups_id()
 
   while process_start_time <= next_start_time:
@@ -341,6 +379,9 @@ while True:
           print("%s Remove %s %s" %(current_time(), fb_group_id, fb_group_name))
           fb_groups_list.remove(fb_group_dict)
           break
+
+        # If post successed, press like button.
+        facebook_prsss_like_button(user_name)
           
         # if post successed then random sleep 2 ~ 4 mins
         rand_sleep_time(each_article_intervals_delay_min, each_article_intervals_delay_max)
@@ -350,7 +391,7 @@ while True:
         if process_start_time >= next_start_time:
           next_time = process_start_time + timedelta(seconds = each_account_intervals_delay)
           print("%s Sleeping....   next start time on %s" %(current_time(), next_time.strftime('%Y/%m/%d %H:%M:%S')))
-          facebook_logout()
+          facebook_logout(username)
           driver.close()
           # sleep_time(each_account_intervals_delay)
           break
