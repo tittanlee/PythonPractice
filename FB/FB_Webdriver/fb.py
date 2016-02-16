@@ -27,11 +27,10 @@ def current_time():
   return '[' + (datetime.now()).strftime('%Y/%m/%d %H:%M:%S') + ']'
 
 def sleep_time(seconds, count_down_msg = 'YES'):
-  if (count_down_msg == "YES"):
-    print("pause %s seconds...." %(seconds))
+  pause_sec = seconds
   while seconds >= 0:
     if count_down_msg == 'YES':
-      print('Count down = %04s' %(seconds), end = '\r')
+      print('pause %s seconds....   Count down = %04s' %(pause_sec, seconds), end = '\r')
     time.sleep(1)
     seconds = seconds - 1
 
@@ -81,7 +80,7 @@ def facebook_logout(username):
   logoutMenu.click()
   sleep_time(3, "N")
   # logoutBtn  = driver.find_element_by_xpath("//*[@action='https://www.facebook.com/logout.php']")
-  logoutBtn  = driver.find_element_by_xpath("//*[text()='Log Out']")
+  logoutBtn  = driver.find_element_by_xpath("//*[text()='登出']")
   logoutBtn.click()
   print ("%s %s Logout Success\n" %(current_time(), username))
   return "Success"
@@ -142,11 +141,7 @@ def facebook_post_to_groups(GroupId, GroupName, TextMessage, number_idx):
   print('%s Entering into %s (%s)'   %(current_time(), GroupName, GroupId))
   post_status = "Successed"
   url = FACEBOOK_URL + '/' + GroupId
-  try:
-    driver.get(url)
-  except UnexpectedAlertPresentException:
-    sleep_time(2, "NO")
-    Alert(driver).accept()
+  driver.get(url)
 
   sleep_time(5, "NO")
   try:
@@ -325,10 +320,12 @@ def chrome_intialization():
 #   display.start()
 
 
-EACH_ACCOUNT_INTERVALS_DELAY     = 60 * 60
-EACH_ARTICLE_INTERVALS_DELAY_MIN = 2 * 60
-EACH_ARTICLE_INTERVALS_DELAY_MAX = 5 * 60
-COLLET_MAX_GROUPS_COUNT          = 200
+EACH_ACCOUNT_INTERVALS_DELAY_MIN          = 50 * 60
+EACH_ACCOUNT_INTERVALS_DELAY_MAX          = 80 * 60
+EACH_ARTICLE_INTERVALS_DELAY_MIN          = 3 * 60
+EACH_ARTICLE_INTERVALS_DELAY_MAX          = 5 * 60
+HOW_MANY_COUNT_ARTICLE_SHOULD_PAUSE       = 12
+COLLET_MAX_GROUPS_COUNT                   = 200
 
 
 account_info_file_path_name = './account.cfg'
@@ -347,61 +344,85 @@ if (article_path_list_len == 0):
   exit()
 
 post_count = 1
+# while True:
+  # process_start_time = datetime.now()
+  # next_start_time = process_start_time + timedelta(seconds = EACH_ACCOUNT_INTERVALS_DELAY)
+
+account_info_list_len = len(account_info_list)
+if (account_info_list_len == 0):
+  print('%s No avaialbe account' %(current_time()))
+  exit()
+
+account_info = account_info_list[account_list_idx].split(",")
+username = account_info[0]
+password = account_info[1]
+account_list_idx = account_list_idx + 1
+if (account_list_idx >= account_info_list_len):
+  account_list_idx = 0
+
+chrome_intialization()
+cookies = dict()
+cookies = facebook_login(username,password)
+
+try:
+  fb_user_name = facebook_get_user_info()
+except NoSuchElementException:
+  del account_info_list[account_list_idx - 1]
+  print('%s %s has been locked by facebook' %(current_time(), username))
+  driver.close()
+  # continue
+
+fb_groups_list = facebook_collect_groups_id()
+
+  # while process_start_time <= next_start_time:
 while True:
-  process_start_time = datetime.now()
-  next_start_time = process_start_time + timedelta(seconds = EACH_ACCOUNT_INTERVALS_DELAY)
+  for fb_group_dict in fb_groups_list:
+    for fb_group_id, fb_group_name in fb_group_dict.items():
+      shuffle(article_path_list)
+      rand_num = randint(0, article_path_list_len - 1)
+      article_path = article_path_list[rand_num]
+      msg = get_message_from_file(article_path)
 
-  account_info = account_info_list[account_list_idx].split(",")
-  username = account_info[0]
-  password = account_info[1]
-  account_list_idx = account_list_idx + 1
-  if (account_list_idx >= account_info_list_len):
-    account_list_idx = 0
+      print('\n%s ============== %s Start post NO.%s ==============='   %(current_time(), fb_user_name, post_count))
 
-  chrome_intialization()
-  cookies = dict()
-  cookies = facebook_login(username,password)
-  user_name = facebook_get_user_info()
-
-  fb_groups_list = facebook_collect_groups_id()
-
-  while process_start_time <= next_start_time:
-    for fb_group_dict in fb_groups_list:
-      for fb_group_id, fb_group_name in fb_group_dict.items():
-        shuffle(article_path_list)
-        rand_num = randint(0, article_path_list_len - 1)
-        article_path = article_path_list[rand_num]
-        msg = get_message_from_file(article_path)
-
-        print('\n%s ============== Start post NO.%s ==============='   %(current_time(), post_count))
+      try:
         post_status = facebook_post_to_groups(fb_group_id, fb_group_name,  msg, post_count)
+      except UnexpectedAlertPresentException:
+        sleep_time(2, "NO")
+        Alert(driver).accept()
+        continue
 
-        # if post status failed, remove the gruoup from list.
-        if (post_status == "SendKeyFailed") or (post_status == "NoTextAreaElem"):
-          fb_groups_list.remove(fb_group_dict)
-          print("%s Remove %s %s" %(current_time(), fb_group_id, fb_group_name))
-          print('%s ============== End  post  NO.%s ===============\n' %(current_time(), post_count))
-          break
-        else:
-          # If post successed, press like button.
-          facebook_prsss_like_button(user_name)
-          print('%s ============== End  post  NO.%s ===============\n' %(current_time(), post_count))
+      # if post status failed, remove the gruoup from list.
+      if (post_status == "SendKeyFailed") or (post_status == "NoTextAreaElem"):
+        fb_groups_list.remove(fb_group_dict)
+        print("%s Remove %s %s" %(current_time(), fb_group_id, fb_group_name))
+        print('%s ============== %s End  post  NO.%s ===============\n' %(current_time(), fb_user_name, post_count))
+        break
+      # else:
+        # If post successed, press like button.
+        # facebook_prsss_like_button(fb_user_name)
+        # print('%s ============== %s End  post  NO.%s ===============\n' %(current_time(), fb_user_name, post_count))
+      print('%s ============== %s End  post  NO.%s ===============\n' %(current_time(), fb_user_name, post_count))
 
+      # if process_start_time >= next_start_time:
+      if (post_count % HOW_MANY_COUNT_ARTICLE_SHOULD_PAUSE) == 0:
+        process_start_time = datetime.now()
+        account_intervals_delay = randint(EACH_ACCOUNT_INTERVALS_DELAY_MIN, EACH_ACCOUNT_INTERVALS_DELAY_MAX)
+        next_time = process_start_time + timedelta(seconds = account_intervals_delay)
+        print("%s Pausing....   Next start time on %s" %(current_time(), next_time.strftime('%Y/%m/%d %H:%M:%S')))
+        # facebook_logout(username)
+        # driver.close()
+        sleep_time(account_intervals_delay)
+        post_count += 1
+        break
+      else:
         # if post successed then random sleep 2 ~ 4 mins
         rand_sleep_time(EACH_ARTICLE_INTERVALS_DELAY_MIN, EACH_ARTICLE_INTERVALS_DELAY_MAX)
         post_count += 1
-
-        process_start_time = datetime.now()
-        if process_start_time >= next_start_time:
-          next_time = process_start_time + timedelta(seconds = EACH_ACCOUNT_INTERVALS_DELAY)
-          print("%s Sleeping....   next start time on %s" %(current_time(), next_time.strftime('%Y/%m/%d %H:%M:%S')))
-          facebook_logout(username)
-          driver.close()
-          # sleep_time(EACH_ACCOUNT_INTERVALS_DELAY)
-          break
-
-      if process_start_time >= next_start_time:
-        break
+     
+    # if process_start_time >= next_start_time:
+    # if (post_count % 10) == 0:
+      # break
 
 
 # driver.close()
