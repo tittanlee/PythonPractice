@@ -182,7 +182,30 @@ def facebook_post_to_groups(GroupId, GroupName, TextMessage, number_idx):
 
         if retry_count == 5:
           post_status = "NoPostBtnElem"
+  
+  if (post_status == "Successed"):
+    facebook_comment_to_groups(fb_group_id, fb_group_name,  msg, post_count)
+  return post_status
 
+
+def facebook_comment_to_groups(GroupId, GroupName, TextMessage, number_idx):
+  print('%s Entering into %s (%s)'   %(current_time(), GroupName, GroupId))
+  post_status = "Successed"
+  url = FACEBOOK_URL + '/' + GroupId
+  driver.get(url)
+  sleep_time(5, "NO")
+
+  comment_area_elem = driver.find_element_by_xpath("//div[@class='UFIInputContainer']")
+  ActionChains(driver).move_to_element(comment_area_elem).perform()
+  sleep_time(3, "NO")
+  comment = driver.find_element_by_xpath("//*[contains(text(), '留言⋯⋯')]")
+  comment.click()
+  sleep_time(3, "NO")
+  pyperclip.copy(TextMessage)
+  sleep_time(3, "NO")
+  ActionChains(driver).key_down(Keys.CONTROL).send_keys('v').key_up(Keys.CONTROL).perform()
+  sleep_time(3, "NO")
+  ActionChains(driver).key_down(Keys.ENTER).perform()
   return post_status
 
 def GetChromeOptions_Notification(Value):
@@ -320,11 +343,11 @@ def chrome_intialization():
 #   display.start()
 
 
-EACH_ACCOUNT_INTERVALS_DELAY_MIN          = 50 * 60
-EACH_ACCOUNT_INTERVALS_DELAY_MAX          = 80 * 60
+EACH_ACCOUNT_INTERVALS_DELAY_MIN          = 55 * 60
+EACH_ACCOUNT_INTERVALS_DELAY_MAX          = 65 * 60
 EACH_ARTICLE_INTERVALS_DELAY_MIN          = 3 * 60
-EACH_ARTICLE_INTERVALS_DELAY_MAX          = 5 * 60
-HOW_MANY_COUNT_ARTICLE_SHOULD_PAUSE       = 12
+EACH_ARTICLE_INTERVALS_DELAY_MAX          = 4 * 60
+HOW_MANY_COUNT_ARTICLE_SHOULD_PAUSE       = 15
 COLLET_MAX_GROUPS_COUNT                   = 200
 
 
@@ -387,6 +410,7 @@ while True:
 
       try:
         post_status = facebook_post_to_groups(fb_group_id, fb_group_name,  msg, post_count)
+        # post_status = facebook_comment_to_groups(fb_group_id, fb_group_name,  msg, post_count)
       except UnexpectedAlertPresentException:
         sleep_time(2, "NO")
         Alert(driver).accept()
