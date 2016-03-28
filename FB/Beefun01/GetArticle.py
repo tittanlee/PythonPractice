@@ -1,9 +1,9 @@
 import facebook
-import fbconsole
+from fbconsole import *
 import os
 from urllib.parse import urlparse
 
-TOKEN = 'CAACEdEose0cBAE9XyaMqYMml9HxChfUPtl0vRFKCRIXSBDObpYrm6z0I4EAAplrf0WAU1FKOPCaRPDXgcE3K7bg2JGDIil0TtCRZABcsryqFzvmJUhcMWdZA0kdZC5BuQ3fntykQsrhLaWlDMY0Sx46OwLMLe54sObOVwkZCGz47TeMM5HJBYyH1I8BHwi062xpmYAZC4GgZDZD'
+TOKEN = 'CAACEdEose0cBAHYGZAlbq85fHaiSAWbvDgryzyirZCYRZBWHbVTLpy6LWLYUdObJhnLU6VKDYEvs9VplO6SEWZCg3Cvl8onrlaWpZBfIILhZCQY0ZBJNxLDJiZCphsXoz2wC4pnuA7vZCCjcm7Rx0OK9Q2sMTans75FrMjfj00Jir8DVhk2jTj7YHMAZA7GQR7HTW52XAU4AcNUQnzsoXoACYy'
 
 BEEFUN01_GROUP_ID = '425409594316108'
 Be001_Base_Url = 'http://beefun01.com/p/%s/?FB'
@@ -27,16 +27,16 @@ def write_data_to_file(filename, msg, link):
 
 
 
-graph = facebook.GraphAPI(TOKEN, version="2.3")
-Beefun01 = graph.get_object(BEEFUN01_GROUP_ID + "/feed")
+graph = Client(TOKEN)
+
 idx = 1
-for d in fbconsole.iter_pages(Beefun01):
+for d in iter_pages(graph.get('/' + BEEFUN01_GROUP_ID + '/feed', {'limit':25})):
   try:
     msg  = d['message']
     link = d['link']
   except KeyError:
     print('######   End Capture  ######')
-    break
+    pass
 
   try:
     path_name = urlparse(link).path.split("/")
